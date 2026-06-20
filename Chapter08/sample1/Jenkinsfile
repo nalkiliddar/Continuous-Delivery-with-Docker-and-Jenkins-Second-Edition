@@ -6,6 +6,7 @@ pipeline {
             label 'docker-agent'
 
         }
+    }    
 
     stages {
        
