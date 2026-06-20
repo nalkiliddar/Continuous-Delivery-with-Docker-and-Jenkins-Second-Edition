@@ -21,9 +21,11 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'gradle build'
+                dir('Chapter08/sample1') { 
+                    sh 'gradle build'
+                }
             }
-        }
+        }    
         stage('check Calculator.java Changes ') {
             when { 
                 changeset '**/Calculator.java'
