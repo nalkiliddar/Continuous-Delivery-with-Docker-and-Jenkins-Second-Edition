@@ -4,7 +4,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
- * Service class responsible for calculator operations.
+ * This class is responsible for calculator operations.
  */
 @Service
 public class Calculator {
