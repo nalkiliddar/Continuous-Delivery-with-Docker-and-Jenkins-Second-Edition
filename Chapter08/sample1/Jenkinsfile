@@ -1,90 +1,80 @@
 pipeline {
-     agent any
-     triggers {
-          pollSCM('* * * * *')
-     }
-     stages {
-          stage("Compile") {
-               steps {
-                    sh "./gradlew compileJava"
-               }
-          }
-          stage("Unit test") {
-               steps {
-                    sh "./gradlew test"
-               }
-          }
-          stage("Code coverage") {
-               steps {
-                    sh "./gradlew jacocoTestReport"
-                    sh "./gradlew jacocoTestCoverageVerification"
-               }
-          }
-          stage("Static code analysis") {
-               steps {
-                    sh "./gradlew checkstyleMain"
-               }
-          }
-          stage("Package") {
-               steps {
-                    sh "./gradlew build"
-               }
-          }
 
-          stage("Docker build") {
-               steps {
-                    sh "docker build -t leszko/calculator:${BUILD_TIMESTAMP} ."
-               }
-          }
+    agent { 
+        docker {
+            image 'gradle:8.14.0-jdk21'
+            label 'docker-agent'
 
-          stage("Docker login") {
-               steps {
-                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-hub-credentials',
-                               usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                         sh "docker login --username $USERNAME --password $PASSWORD"
-                    }
-               }
-          }
+        }
 
-          stage("Docker push") {
-               steps {
-                    sh "docker push leszko/calculator:${BUILD_TIMESTAMP}"
-               }
-          }
-
-          stage("Update version") {
-               steps {
-                    sh "sed  -i 's/{{VERSION}}/${BUILD_TIMESTAMP}/g' calculator.yaml"
-               }
-          }
-          
-          stage("Deploy to staging") {
-               steps {
-                    sh "kubectl config use-context staging"
-                    sh "kubectl apply -f hazelcast.yaml"
-                    sh "kubectl apply -f calculator.yaml"
-               }
-          }
-
-          stage("Acceptance test") {
-               steps {
-                    sleep 60
-                    sh "chmod +x acceptance-test.sh && ./acceptance-test.sh"
-               }
-          }
-
-          stage("Release") {
-               steps {
-                    sh "kubectl config use-context production"
-                    sh "kubectl apply -f hazelcast.yaml"
-                    sh "kubectl apply -f calculator.yaml"
-               }
-          }
-          stage("Smoke test") {
-              steps {
-                  sleep 60
-                  sh "chmod +x smoke-test.sh && ./smoke-test.sh"
-              }
-          }
-     }
+    stages {
+       
+        stage('Checkout code and prepare environment') {
+            steps {
+                git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master'
+                sh """
+                cd Chapter08/sample1
+                chmod +x gradlew
+                """
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'gradle build'
+            }
+        }
+        stage('check Calculator.java Changes ') {
+            when { 
+                changeset '**/Calculator.java'
+            }   
+             steps {
+                sh """
+                  cd Chapter08/sample1
+                  
+                  ./gradlew jacocoTestReport checkstyleMain
+                """
+                publishHTML (
+                    target: [
+                      allowMissing: false,
+                      alwaysLinkToLastBuild: true,
+                      keepAll: true,
+                      reportDir: 'Chapter08/sample1/build/reports/tests/test',
+                      reportFiles: 'index.html',
+                      reportName: "JaCoCo Report"
+                    ]
+                )
+                publishHTML (
+                      target: [
+                          allowMissing: false,
+                          alwaysLinkToLastBuild: true,
+                          keepAll: true,
+                          reportDir: 'Chapter08/sample1/build/reports',
+                          reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html',
+                          reportName: "jacoco checkstyle"
+                      ]
+                  )
+             }
+         }
+        stage('Run other Test') {
+            steps {
+                
+                sh """
+                cd Chapter08/sample1
+                ./gradlew test
+                
+                """
+                
+                
+            }
+        }     
+        
+    }
+    post {
+        success {
+            echo "pipeline ran perfectly"
+        }
+        failure {
+            echo "pipeline failure"
+        }
+    }
 }
