@@ -30,7 +30,7 @@ pipeline {
             when { branch 'master'}
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew jacocoTestCoverageVerification'
+                    sh './gradlew test jacocoTestCoverageVerification'
 
                 }
             } 
