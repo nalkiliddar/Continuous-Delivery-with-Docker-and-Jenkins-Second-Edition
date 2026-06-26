@@ -32,8 +32,8 @@ pipeline {
                 dir('Chapter08/sample1') {
                     sh './gradlew jacocoTestCoverageVerification'
 
-            }
-        } 
+                }
+            } 
         stage('Run all tests on the feature branch') {
             when { branch 'feature' }   
              steps {
@@ -63,7 +63,7 @@ pipeline {
                       ]
                   )
              }
-         }
+        }
         stage('Any other branch') {
             steps {
                 when {
