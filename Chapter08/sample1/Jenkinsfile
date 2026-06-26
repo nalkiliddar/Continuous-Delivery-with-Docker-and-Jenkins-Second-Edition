@@ -10,7 +10,7 @@ pipeline {
 
     stages {
        
-        stage('Checkout code and prepare environment') {
+        stage('Checkout code') {
             steps {
                 git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master'
                 sh """
@@ -25,10 +25,18 @@ pipeline {
                     sh './gradlew tasks'
                 }
             }
-        }    
-        stage('check Calculator.java Changes ') {
+        }  
+        stage('prepare environment - Run CodeCoverage test on main branch') {
+            when { branch 'master'}
+            steps {
+                dir('Chapter08/sample1') {
+                    sh './gradlew jacocoTestCoverageVerification'
+
+            }
+        } 
+        stage('Run all tests on the feature branch') {
             when { 
-                changeset '**/Calculator.java'
+              not { branch 'master' }
             }   
              steps {
                 sh """
@@ -58,14 +66,18 @@ pipeline {
                   )
              }
          }
-        stage('Run other Test') {
+        stage('Any other branch') {
             steps {
+                when {
+                    not { anyOf {branch 'master'
+                                 branch 'feature/*'
+                                 }
+                         }
+                }
+                steps {
+                    echo 'Build error'
+                }
                 
-                sh """
-                cd Chapter08/sample1
-                ./gradlew test
-                
-                """
                 
                 
             }
