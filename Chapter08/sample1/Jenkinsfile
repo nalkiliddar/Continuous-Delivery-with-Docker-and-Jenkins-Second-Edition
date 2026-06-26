@@ -35,9 +35,7 @@ pipeline {
             }
         } 
         stage('Run all tests on the feature branch') {
-            when { 
-              not { branch 'master' }
-            }   
+            when { branch 'feature' }   
              steps {
                 sh """
                   cd Chapter08/sample1
@@ -85,11 +83,13 @@ pipeline {
         
     }
     post {
-        success {
-            echo "pipeline ran perfectly"
-        }
-        failure {
-            echo "pipeline failure"
+            success {
+                echo "pipeline ran perfectly"
+            }
+            failure {
+                echo "pipeline failure"
+            }
         }
     }
-}
+}        
+   
