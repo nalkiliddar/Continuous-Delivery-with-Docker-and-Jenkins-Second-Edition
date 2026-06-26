@@ -34,6 +34,7 @@ pipeline {
 
                 }
             } 
+        }    
         stage('Run all tests on the feature branch') {
             when { branch 'feature' }   
              steps {
@@ -65,31 +66,32 @@ pipeline {
              }
         }
         stage('Any other branch') {
-            steps {
-                when {
-                    not { anyOf {branch 'master'
-                                 branch 'feature/*'
-                                 }
-                         }
+            when {
+                not { 
+                   anyOf {
+                       branch 'master'
+                       branch 'feature/*'
+                    }
                 }
-                steps {
-                    echo 'Build error'
-                }
-                
-                
-                
             }
-        }     
+            steps {
+                    echo 'Build error'
+            }
+                
+                
+                
+        }
+        
         
     }
     post {
-            success {
-                echo "pipeline ran perfectly"
-            }
-            failure {
-                echo "pipeline failure"
-            }
+        success {
+            echo "pipeline ran perfectly"
+        }
+        failure {
+            echo "pipeline failure"
         }
     }
+    
 }        
    
