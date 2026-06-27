@@ -35,7 +35,7 @@ pipeline {
                 }
             } 
         }    
-        stage('Run all tests on the feature branch') {
+        stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { branch 'feature' }   
              steps {
                 sh """
