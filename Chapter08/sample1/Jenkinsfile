@@ -45,7 +45,7 @@ pipeline {
                 """
                 publishHTML (
                     target: [
-                      allowMissing: false,
+                      allowMissing: true,
                       alwaysLinkToLastBuild: true,
                       keepAll: true,
                       reportDir: 'Chapter08/sample1/build/reports/tests/test',
@@ -70,17 +70,17 @@ pipeline {
                 not { 
                    anyOf {
                        branch 'master'
-                       branch 'feature/*'
+                       branch 'feature'
                     }
                 }
             }
             steps {
                     echo "Build failed'"
             }
+        }  
                 
                 
-                
-        }
+        
         
         
     }
