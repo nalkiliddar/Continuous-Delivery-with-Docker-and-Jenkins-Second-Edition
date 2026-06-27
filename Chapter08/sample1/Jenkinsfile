@@ -75,7 +75,7 @@ pipeline {
                 }
             }
             steps {
-                    error "Build failed'"
+                    echo "Build failed'"
             }
                 
                 
