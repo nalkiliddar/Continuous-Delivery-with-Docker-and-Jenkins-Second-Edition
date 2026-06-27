@@ -70,17 +70,17 @@ pipeline {
                 not { 
                    anyOf {
                        branch 'master'
-                       branch 'feature/*'
+                       branch 'feature'
                     }
                 }
             }
             steps {
                     echo "Build failed'"
             }
+        }  
                 
                 
-                
-        }
+        
         
         
     }
