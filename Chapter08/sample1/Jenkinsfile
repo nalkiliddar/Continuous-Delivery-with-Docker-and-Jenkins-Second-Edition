@@ -26,7 +26,7 @@ pipeline {
                 }
             }
         }  
-        stage('prepare environment - Run CodeCoverage test on main branch') {
+        stage('prepare environment - Run CodeCoverage test on master branch') {
             when { branch 'master'}
             steps {
                 dir('Chapter08/sample1') {
@@ -35,7 +35,7 @@ pipeline {
                 }
             } 
         }    
-        stage('Run all tests on the feature branch') {
+        stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { branch 'feature' }   
              steps {
                 sh """
