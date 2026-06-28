@@ -11,7 +11,7 @@ pipeline {
     stages {
        
         stage('Checkout code') {
-            steps { deleteDir()
+            steps { 
                 git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master'
                 sh """
                 cd Chapter08/sample1
@@ -22,7 +22,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle''
+                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
                 }
             }
         }  
