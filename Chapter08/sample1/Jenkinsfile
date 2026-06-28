@@ -23,19 +23,16 @@ pipeline {
             steps {
                 dir('Chapter08/sample1') { 
                     sh './gradlew clean tasks'
-                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
                 }
             }
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
                 
-                anyOf {
                      branch 'master'
-                     changeRequest target: 'master' , comparator: 'EQUALS'
+                     
                 }
             }         
-            when { branch 'master'}
             steps {
                 dir('Chapter08/sample1') {
                     sh './gradlew test jacocoTestCoverageVerification'
@@ -45,7 +42,6 @@ pipeline {
         }    
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
-                
                 anyOf {
                     branch 'feature' 
                     changeRequest  target: 'feature' , comparator: 'EQUALS'
@@ -56,7 +52,6 @@ pipeline {
                   cd Chapter08/sample1
                   
                   ./gradlew jacocoTestReport checkstyleMain  
-                  ./gradlew jacocoTestReport checkstyleMain --build-cache 
                 """
                 publishHTML (
                     target: [
@@ -85,14 +80,14 @@ pipeline {
                 not { 
                    anyOf {
                        branch 'master'
-                       changeRequest target: 'master' , comparator: 'EQUALS'
                        branch 'feature'
-                       changeRequest target: 'feature' , comparator: 'EQUALS'
+                       changeRequest target: 'feature', comparator: 'EQUALS'
+                       changeRequest target: 'master', comparator: 'EQUALS'
                     }
                 }
             }
             steps {
-                    echo "Build failed'"
+                    error "Build failed: branch is not master or feature'"
             }
         }  
                 
@@ -109,6 +104,7 @@ pipeline {
             echo "pipeline failure"
         }
     }
+}    
     
-}        
+     
    
