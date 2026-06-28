@@ -3,7 +3,7 @@ pipeline {
     agent { 
         docker {
             image 'gradle:4.10.2'
-            args '-v gradle-cache:/home/jenkins/.gradle -e GRADLE_USER_HOME=/home/jenkins/.gradle --user root'
+            
 
         }
     }    
@@ -22,26 +22,36 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
+                    sh './gradlew clean tasks'
                 }
             }
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
-            when { branch 'master'}
+            when {
+                anyOf {
+                     branch 'master'
+                     changeRequest target: 'master'
+                }
+            }         
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew test jacocoTestCoverageVerification --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
+                    sh './gradlew test jacocoTestCoverageVerification'
 
                 }
             } 
         }    
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
-            when { branch 'feature' }   
+            when { 
+                anyOf {
+                    branch 'feature' 
+                    changeRequest  target: 'feature'
+                }
+            }         
              steps {
                 sh """
                   cd Chapter08/sample1
                   
-                  ./gradlew jacocoTestReport checkstyleMain --build-cache 
+                  ./gradlew jacocoTestReport checkstyleMain  
                 """
                 publishHTML (
                     target: [
@@ -70,7 +80,9 @@ pipeline {
                 not { 
                    anyOf {
                        branch 'master'
+                       changeRequest target: 'master'
                        branch 'feature'
+                       changeRequest target: 'feature'
                     }
                 }
             }
