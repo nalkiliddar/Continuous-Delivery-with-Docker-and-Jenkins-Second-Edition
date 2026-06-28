@@ -86,7 +86,7 @@ pipeline {
                 }
             }
             steps {
-                    echo "Build failed'"
+                    error "Build failed: branch is not master or feature'"
             }
         }  
                 
