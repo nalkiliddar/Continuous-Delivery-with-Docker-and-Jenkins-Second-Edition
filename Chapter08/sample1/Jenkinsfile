@@ -3,8 +3,8 @@ pipeline {
     agent { 
         docker {
             image 'gradle:4.10.2'
-            
-
+            // Restored the working volume cache arguments
+            args '-v gradle-cache:/home/jenkins/.gradle -e GRADLE_USER_HOME=/home/jenkins/.gradle --user root'
         }
     }    
 
@@ -12,6 +12,7 @@ pipeline {
        
         stage('Checkout code') {
             steps { 
+                deleteDir() // Keeps your temporary workspaces clean
                 git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master'
                 sh """
                 cd Chapter08/sample1
@@ -22,21 +23,21 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks'
+                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info'
                 }
             }
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                
-                     branch 'master'
-                     
+                // Fixed: Wrapped conditions correctly inside a single anyOf block
+                anyOf {
+                    branch 'master'
+                    changeRequest target: 'master', comparator: 'EQUALS'
                 }
             }         
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew test jacocoTestCoverageVerification'
-
+                    sh './gradlew clean test jacocoTestCoverageVerification --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info'
                 }
             } 
         }    
@@ -44,14 +45,13 @@ pipeline {
             when { 
                 anyOf {
                     branch 'feature' 
-                    changeRequest  target: 'feature' , comparator: 'EQUALS'
+                    changeRequest target: 'feature', comparator: 'EQUALS'
                 }
             }         
              steps {
                 sh """
                   cd Chapter08/sample1
-                  
-                  ./gradlew jacocoTestReport checkstyleMain  
+                  ./gradlew clean jacocoTestReport checkstyleMain --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info
                 """
                 publishHTML (
                     target: [
@@ -87,14 +87,9 @@ pipeline {
                 }
             }
             steps {
-                    error "Build failed: branch is not master or feature'"
+                error "Build failed: Direct push or Pull Request targets an unauthorized branch."
             }
         }  
-                
-                
-        
-        
-        
     }
     post {
         success {
@@ -104,7 +99,4 @@ pipeline {
             echo "pipeline failure"
         }
     }
-}    
-    
-     
-   
+}
