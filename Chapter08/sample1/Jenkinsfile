@@ -28,9 +28,9 @@ pipeline {
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                anyOf {
+                
                      branch 'master'
-                     changeRequest target: 'master' , comparator: 'EQUALS'
+                     
                 }
             }         
             steps {
@@ -80,14 +80,14 @@ pipeline {
                 not { 
                    anyOf {
                        branch 'master'
-                       changeRequest target: 'master' , comparator: 'EQUALS'
                        branch 'feature'
-                       changeRequest target: 'feature' , comparator: 'EQUALS'
+                       changeRequest target: 'feature', comparator: 'EQUALS'
+                       changeRequest target: 'master', comparator: 'EQUALS'
                     }
                 }
             }
             steps {
-                    echo "Build failed'"
+                    error "Build failed: branch is not master or feature'"
             }
         }  
                 
@@ -104,6 +104,7 @@ pipeline {
             echo "pipeline failure"
         }
     }
+}    
     
-}        
+     
    
