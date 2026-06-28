@@ -32,7 +32,7 @@ pipeline {
                 
                 anyOf {
                      branch 'master'
-                     changeRequest target: 'master'
+                     changeRequest target: 'master' , comparator: 'EQUALS'
                 }
             }         
             when { branch 'master'}
@@ -48,7 +48,7 @@ pipeline {
                 
                 anyOf {
                     branch 'feature' 
-                    changeRequest  target: 'feature'
+                    changeRequest  target: 'feature' , comparator: 'EQUALS'
                 }
             }         
              steps {
@@ -85,9 +85,9 @@ pipeline {
                 not { 
                    anyOf {
                        branch 'master'
-                       changeRequest target: 'master'
+                       changeRequest target: 'master' , comparator: 'EQUALS'
                        branch 'feature'
-                       changeRequest target: 'feature'
+                       changeRequest target: 'feature' , comparator: 'EQUALS'
                     }
                 }
             }
