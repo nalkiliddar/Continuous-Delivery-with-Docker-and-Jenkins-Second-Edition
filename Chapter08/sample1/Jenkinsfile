@@ -3,7 +3,7 @@ pipeline {
     agent { 
         docker {
             image 'gradle:4.10.2'
-            args '-v gradle-cache:/home/jenkins/.gradle -e GRADLE_USER_HOME=/home/jenkins/.gradle --user root'
+            
 
         }
     }    
@@ -29,7 +29,8 @@ pipeline {
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                anyof {
+                
+                anyOf {
                      branch 'master'
                      changeRequest target: 'master'
                 }
@@ -37,14 +38,15 @@ pipeline {
             when { branch 'master'}
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew test jacocoTestCoverageVerification --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
+                    sh './gradlew test jacocoTestCoverageVerification'
 
                 }
             } 
         }    
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
-                anyof {
+                
+                anyOf {
                     branch 'feature' 
                     changeRequest  target: 'feature'
                 }
