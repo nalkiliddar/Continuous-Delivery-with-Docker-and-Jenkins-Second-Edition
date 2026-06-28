@@ -3,7 +3,7 @@ pipeline {
     agent { 
         docker {
             image 'gradle:4.10.2'
-            
+            args '-v gradle-cache:/home/jenkins/.gradle -e GRADLE_USER_HOME=/home/jenkins/.gradle --user root'
 
         }
     }    
@@ -23,6 +23,7 @@ pipeline {
             steps {
                 dir('Chapter08/sample1') { 
                     sh './gradlew clean tasks'
+                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
                 }
             }
         }  
@@ -33,9 +34,10 @@ pipeline {
                      changeRequest target: 'master'
                 }
             }         
+            when { branch 'master'}
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew test jacocoTestCoverageVerification'
+                    sh './gradlew test jacocoTestCoverageVerification --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
 
                 }
             } 
@@ -52,6 +54,7 @@ pipeline {
                   cd Chapter08/sample1
                   
                   ./gradlew jacocoTestReport checkstyleMain  
+                  ./gradlew jacocoTestReport checkstyleMain --build-cache 
                 """
                 publishHTML (
                     target: [
