@@ -104,11 +104,7 @@ pipeline {
             echo "pipeline failure"
         }
     }
-}
-
-
-
-
+}    
     
      
    
