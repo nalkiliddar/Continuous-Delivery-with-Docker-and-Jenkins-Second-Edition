@@ -28,9 +28,9 @@ pipeline {
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                anyOf {
+                
                      branch 'master'
-                     changeRequest target: 'master' , comparator: 'EQUALS'
+                     
                 }
             }         
             steps {
