@@ -29,7 +29,7 @@ pipeline {
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                // Fixed: Wrapped conditions correctly inside a single anyOf block
+                
                 anyOf {
                     branch 'master'
                     changeRequest target: 'master', comparator: 'EQUALS'
