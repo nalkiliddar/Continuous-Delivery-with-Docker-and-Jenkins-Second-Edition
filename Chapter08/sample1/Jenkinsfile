@@ -42,7 +42,7 @@ pipeline {
         }    
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
-                anyof {
+                anyOf {
                     branch 'feature' 
                     changeRequest  target: 'feature'
                 }
