@@ -3,8 +3,8 @@ pipeline {
     agent { 
         docker {
             image 'gradle:4.10.2'
-            // Restored the working volume cache arguments
-            args '-v gradle-cache:/home/jenkins/.gradle -e GRADLE_USER_HOME=/home/jenkins/.gradle --user root'
+            
+
         }
     }    
 
@@ -12,7 +12,6 @@ pipeline {
        
         stage('Checkout code') {
             steps { 
-                deleteDir() // Keeps your temporary workspaces clean
                 git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master'
                 sh """
                 cd Chapter08/sample1
@@ -23,80 +22,77 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info'
+                    sh './gradlew clean tasks --build-cache -Dgradle.user.home=/home/jenkins/.gradle'
                 }
             }
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                
-                anyOf {
-                    branch 'master'
-                    changeRequest target: 'master', comparator: 'EQUALS'
+                anyof {
+                     branch 'master'
+                     changeRequest target: 'master'
                 }
             }         
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew clean test jacocoTestCoverageVerification --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info'
+                    sh './gradlew test jacocoTestCoverageVerification --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info'
+
                 }
             } 
         }    
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
-                anyOf {
+                anyof {
                     branch 'feature' 
-                    changeRequest target: 'feature', comparator: 'EQUALS'
+                    changeRequest  target: 'feature'
                 }
             }         
              steps {
                 sh """
                   cd Chapter08/sample1
-                  ./gradlew clean jacocoTestReport checkstyleMain --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info
+                  
+                  ./gradlew jacocoTestReport checkstyleMain --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info
                 """
-                publishHTML (
-                    target: [
-                      allowMissing: true,
-                      alwaysLinkToLastBuild: true,
-                      keepAll: true,
-                      reportDir: 'Chapter08/sample1/build/reports/tests/test',
-                      reportFiles: 'index.html',
-                      reportName: "JaCoCo Report"
-                    ]
-                )
-                publishHTML (
-                      target: [
-                          allowMissing: false,
-                          alwaysLinkToLastBuild: true,
-                          keepAll: true,
-                          reportDir: 'Chapter08/sample1/build/reports',
-                          reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html',
-                          reportName: "jacoco checkstyle"
-                      ]
-                  )
              }
-        }
-        stage('Any other branch') {
-            when {
-                not { 
-                   anyOf {
-                       branch 'master'
-                       branch 'feature'
-                       changeRequest target: 'feature', comparator: 'EQUALS'
-                       changeRequest target: 'master', comparator: 'EQUALS'
-                    }
+             post {
+                 always {
+                    publishHTML (
+                        target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'Chapter08/sample1/build/reports/tests/test',
+                        reportFiles: 'index.html',
+                        reportName: "JaCoCo Report"
+                        ]
+                    )
+                    publishHTML (
+                        target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'Chapter08/sample1/build/reports',
+                            reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html',
+                            reportName: "jacoco checkstyle"
+                        ]
+                    )
                 }
             }
-            steps {
-                error "Build failed: Direct push or Pull Request targets an unauthorized branch."
+            success {
+                echo "test pass!"
+            }
+            failure {
+                echo "test fail!"
             }
         }  
     }
-    post {
-        success {
-            echo "pipeline ran perfectly"
-        }
-        failure {
-            echo "pipeline failure"
-        }
-    }
-}
+}          
+          
+          
+               
+          
+       
+    
+    
+       
+   
