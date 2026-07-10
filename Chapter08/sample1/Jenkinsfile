@@ -22,7 +22,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks'
+                    sh './gradlew tasks'
                 }
             }
         }  
@@ -81,8 +81,7 @@ pipeline {
                    anyOf {
                        branch 'master'
                        branch 'feature'
-                       changeRequest target: 'feature', comparator: 'EQUALS'
-                       changeRequest target: 'master', comparator: 'EQUALS'
+                       
                     }
                 }
             }
@@ -104,7 +103,7 @@ pipeline {
             echo "pipeline failure"
         }
     }
-}    
+}
     
-     
+        
    
