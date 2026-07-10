@@ -1,109 +1,86 @@
-pipeline {
-
+pipeline { 
     agent { 
-        docker {
-            image 'gradle:4.10.2'
-            
-
-        }
-    }    
-
-    stages {
-       
-        stage('Checkout code') {
+        docker { image 'gradle:4.10.2' } 
+    } 
+    stages { 
+        stage('Checkout code') { 
             steps { 
-                git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master'
+                git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch:'master' 
                 sh """
-                cd Chapter08/sample1
-                chmod +x gradlew
-                """
-            }
-        }
-        stage('Build') {
-            steps {
-                dir('Chapter08/sample1') { 
-                    sh './gradlew tasks'
-                }
-            }
-        }  
-        stage('prepare environment - Run CodeCoverage test on main branch') {
-            when {
-                
-                     branch 'master'
-                     
-                }
-            }         
-            steps {
-                dir('Chapter08/sample1') {
-                    sh './gradlew test jacocoTestCoverageVerification'
-
-                }
+                    cd Chapter08/sample1
+                    chmod +x gradlew
+                """ 
             } 
-        }    
-        stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
+        } 
+        stage('Build') { 
+            steps { 
+                dir('Chapter08/sample1') { 
+                    sh './gradlew tasks' 
+                } 
+            } 
+        } 
+        stage('prepare environment - Run CodeCoverage test on main branch') { 
+            when { branch 'master' } 
+            steps { // <--- FIXED: Now inside the stage block
+                dir('Chapter08/sample1') { 
+                    sh './gradlew test jacocoTestCoverageVerification' 
+                } 
+            } 
+        } 
+        stage('Run jacocoTestReport checkstyleMain tests on the feature branch') { 
             when { 
-                anyOf {
+                anyOf { 
                     branch 'feature' 
-                    changeRequest  target: 'feature' , comparator: 'EQUALS'
-                }
-            }         
-             steps {
+                    changeRequest target: 'feature' , comparator: 'EQUALS' 
+                } 
+            } 
+            steps { 
                 sh """
-                  cd Chapter08/sample1
-                  
-                  ./gradlew jacocoTestReport checkstyleMain  
-                """
-                publishHTML (
-                    target: [
-                      allowMissing: true,
-                      alwaysLinkToLastBuild: true,
-                      keepAll: true,
-                      reportDir: 'Chapter08/sample1/build/reports/tests/test',
-                      reportFiles: 'index.html',
-                      reportName: "JaCoCo Report"
-                    ]
-                )
-                publishHTML (
-                      target: [
-                          allowMissing: false,
-                          alwaysLinkToLastBuild: true,
-                          keepAll: true,
-                          reportDir: 'Chapter08/sample1/build/reports',
-                          reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html',
-                          reportName: "jacoco checkstyle"
-                      ]
-                  )
-             }
-        }
-        stage('Any other branch') {
-            when {
+                    cd Chapter08/sample1
+                    ./gradlew jacocoTestReport checkstyleMain
+                """ 
+                publishHTML ( 
+                    target: [ 
+                        allowMissing: true, 
+                        alwaysLinkToLastBuild: true, 
+                        keepAll: true, 
+                        reportDir: 'Chapter08/sample1/build/reports/tests/test', 
+                        reportFiles: 'index.html', 
+                        reportName: "JaCoCo Report" 
+                    ] 
+                ) 
+                publishHTML ( 
+                    target: [ 
+                        allowMissing: false, 
+                        alwaysLinkToLastBuild: true, 
+                        keepAll: true, 
+                        reportDir: 'Chapter08/sample1/build/reports', 
+                        reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html', 
+                        reportName: "jacoco checkstyle" 
+                    ] 
+                ) 
+            } 
+        } 
+        stage('Any other branch') { 
+            when { 
                 not { 
-                   anyOf {
-                       branch 'master'
-                       branch 'feature'
-                       
-                    }
-                }
-            }
-            steps {
-                    error "Build failed: branch is not master or feature'"
-            }
-        }  
-                
-                
-        
-        
-        
-    }
-    post {
-        success {
-            echo "pipeline ran perfectly"
-        }
-        failure {
-            echo "pipeline failure"
-        }
-    }
+                    anyOf { 
+                        branch 'master' 
+                        branch 'feature' 
+                    } 
+                } 
+            } 
+            steps { 
+                error "Build failed: branch is not master or feature'" 
+            } 
+        } 
+    } 
+    post { 
+        success { 
+            echo "pipeline ran perfectly" 
+        } 
+        failure { 
+            echo "pipeline failure" 
+        } 
+    } 
 }
-    
-        
-   
