@@ -45,7 +45,7 @@ pipeline {
             when { 
                 anyOf {
                     branch 'feature' 
-                    changeRequest  target: 'feature'
+                    changeRequest ()
                 }
             }         
             steps {
