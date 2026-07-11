@@ -28,7 +28,7 @@ pipeline {
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                anyof {
+                anyOf {
                      branch 'master'
                      changeRequest target: 'master'
                 }
@@ -40,6 +40,7 @@ pipeline {
                 }
             } 
         }    
+        
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
                 anyOf {
@@ -47,15 +48,15 @@ pipeline {
                     changeRequest  target: 'feature'
                 }
             }         
-             steps {
-                sh """
-                  cd Chapter08/sample1
-                  
-                  ./gradlew jacocoTestReport checkstyleMain --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info
-                """
-             }
-             post {
-                 always {
+            steps {
+            sh """
+                cd Chapter08/sample1
+                
+                ./gradlew jacocoTestReport checkstyleMain --build-cache -Dgradle.user.home=/home/jenkins/.gradle --info
+            """
+            }
+            post {
+                always {
                     publishHTML (
                         target: [
                         allowMissing: true,
@@ -76,14 +77,15 @@ pipeline {
                             reportName: "jacoco checkstyle"
                         ]
                     )
+                    }
+            
+                success {
+                    echo "test pass!"
                 }
-            }
-            success {
-                echo "test pass!"
-            }
-            failure {
-                echo "test fail!"
-            }
+                failure {
+                    echo "test fail!"
+                }
+            }   
         }  
     }
 }          
