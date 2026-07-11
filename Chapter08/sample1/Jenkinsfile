@@ -80,7 +80,7 @@ pipeline {
                     }
             
                 success {
-                    echo "test pass!"
+                    echo "test pass"
                 }
                 failure {
                     echo "test fail"
