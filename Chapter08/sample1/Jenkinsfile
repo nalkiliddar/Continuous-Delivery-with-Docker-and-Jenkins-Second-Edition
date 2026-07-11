@@ -22,88 +22,79 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew tasks'
+                    sh './gradlew clean tasks'
                 }
             }
         }  
         stage('prepare environment - Run CodeCoverage test on main branch') {
             when {
-                
+                anyOf {
                      branch 'master'
-                     
+                     changeRequest target: 'master'
                 }
             }         
             steps {
                 dir('Chapter08/sample1') {
-                    sh './gradlew test jacocoTestCoverageVerification'
+                    sh './gradlew test jacocoTestReport jacocoTestCoverageVerification' 
 
                 }
             } 
         }    
+        
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
                 anyOf {
                     branch 'feature' 
-                    changeRequest  target: 'feature' , comparator: 'EQUALS'
+                    changeRequest  target: 'feature'
                 }
             }         
-             steps {
-                sh """
-                  cd Chapter08/sample1
-                  
-                  ./gradlew jacocoTestReport checkstyleMain  
-                """
-                publishHTML (
-                    target: [
-                      allowMissing: true,
-                      alwaysLinkToLastBuild: true,
-                      keepAll: true,
-                      reportDir: 'Chapter08/sample1/build/reports/tests/test',
-                      reportFiles: 'index.html',
-                      reportName: "JaCoCo Report"
-                    ]
-                )
-                publishHTML (
-                      target: [
-                          allowMissing: false,
-                          alwaysLinkToLastBuild: true,
-                          keepAll: true,
-                          reportDir: 'Chapter08/sample1/build/reports',
-                          reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html',
-                          reportName: "jacoco checkstyle"
-                      ]
-                  )
-             }
-        }
-        stage('Any other branch') {
-            when {
-                not { 
-                   anyOf {
-                       branch 'master'
-                       branch 'feature'
-                       
-                    }
-                }
-            }
             steps {
-                    error "Build failed: branch is not master or feature'"
+            sh """
+                cd Chapter08/sample1
+                
+                ./gradlew jacocoTestReport checkstyleMain 
+            """
             }
+            post {
+                always {
+                    publishHTML (
+                        target: [
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'Chapter08/sample1/build/reports/tests/test',
+                        reportFiles: 'index.html',
+                        reportName: "JaCoCo Report"
+                        ]
+                    )
+                    publishHTML (
+                        target: [
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'Chapter08/sample1/build/reports',
+                            reportFiles: 'jacoco/test/html/index.html, checkstyle/main.html',
+                            reportName: "jacoco checkstyle"
+                        ]
+                    )
+                    }
+            
+                success {
+                    echo "test pass!"
+                }
+                failure {
+                    echo "test fail"
+                }
+            }   
         }  
-                
-                
-        
-        
-        
     }
-    post {
-        success {
-            echo "pipeline ran perfectly"
-        }
-        failure {
-            echo "pipeline failure"
-        }
-    }
-}
+}          
+          
+          
+               
+          
+       
     
-        
+    
+       
    
