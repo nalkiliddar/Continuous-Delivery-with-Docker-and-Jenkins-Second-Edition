@@ -7,12 +7,15 @@ pipeline {
 
         }
     }    
-
+     options {
+        // Bypasses the default background checkout process that triggers the 403 API restriction
+        skipDefaultCheckout(true)
+    }
     stages {
        
         stage('Checkout code') {
             steps { 
-                git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch: "${env.BRANCH_NAME}"
+                git url: 'https://github.com/nalkiliddar/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition', branch: 'master'
                 sh """
                 cd Chapter08/sample1
                 chmod +x gradlew
