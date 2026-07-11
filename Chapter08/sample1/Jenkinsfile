@@ -22,7 +22,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks 
+                    sh './gradlew clean tasks' 
                 }
             }
         }  
