@@ -8,7 +8,7 @@ pipeline {
         }
     }    
     options {
-        // Blocks the automatic background connection step that was throwing the 403 error
+        
         skipDefaultCheckout(true)
     }
     stages {
