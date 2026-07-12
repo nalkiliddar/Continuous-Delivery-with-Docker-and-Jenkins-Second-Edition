@@ -7,8 +7,8 @@ pipeline {
 
         }
     }    
-     options {
-        // Bypasses the default background checkout process that triggers the 403 API restriction
+    options {
+        
         skipDefaultCheckout(true)
     }
     stages {
@@ -25,7 +25,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Chapter08/sample1') { 
-                    sh './gradlew clean tasks'
+                    sh './gradlew clean tasks' 
                 }
             }
         }  
@@ -47,15 +47,17 @@ pipeline {
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
                 anyOf {
-                    branch 'feature' 
-                    changeRequest ()
+                    branch 'feature'
+                    changeRequest target: 'master'
+                    
                 }
             }         
             steps {
+                dir('Chapter08/sample1')
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE')
             sh """
-                cd Chapter08/sample1
                 
-                ./gradlew jacocoTestReport checkstyleMain 
+                ./gradlew jacocoTestReport checkstyleMain --continue 
             """
             }
             post {
