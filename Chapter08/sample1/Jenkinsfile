@@ -89,7 +89,22 @@ pipeline {
                     echo "test fail"
                 }
             }   
-        }  
+        }
+        stage('Any other branch') {
+            when {
+                not { 
+                   anyOf {
+                       branch 'master'
+                       branch 'feature'
+                       changeRequest target: 'feature', comparator: 'EQUALS'
+                       changeRequest target: 'master', comparator: 'EQUALS'
+                    }
+                }
+            }
+            steps {
+                error "Build failed"
+            }
+        }    
     }
 }          
           
