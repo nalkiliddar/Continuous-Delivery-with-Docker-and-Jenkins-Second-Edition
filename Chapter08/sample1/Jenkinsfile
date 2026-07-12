@@ -53,8 +53,9 @@ pipeline {
                 }
             }         
             steps {
-            sh """
                 dir('Chapter08/sample1')
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE')
+            sh """
                 
                 ./gradlew jacocoTestReport checkstyleMain --continue 
             """
