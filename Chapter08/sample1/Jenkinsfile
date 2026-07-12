@@ -96,8 +96,7 @@ pipeline {
                    anyOf {
                        branch 'master'
                        branch 'feature'
-                       changeRequest target: 'feature', comparator: 'EQUALS'
-                       changeRequest target: 'master', comparator: 'EQUALS'
+                       
                     }
                 }
             }
