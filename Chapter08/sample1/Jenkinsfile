@@ -47,15 +47,16 @@ pipeline {
         stage('Run jacocoTestReport checkstyleMain tests on the feature branch') {
             when { 
                 anyOf {
-                    branch 'feature' 
+                    branch 'feature'
+                    changeRequest target: 'master'
                     
                 }
             }         
             steps {
             sh """
-                cd Chapter08/sample1
+                dir('Chapter08/sample1')
                 
-                ./gradlew jacocoTestReport checkstyleMain 
+                ./gradlew jacocoTestReport checkstyleMain --continue 
             """
             }
             post {
